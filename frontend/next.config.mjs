@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: "https://ms-ai.duckdns.org/:path*",
+        destination: "http://ms-ai.duckdns.org/:path*",
       },
     ];
   },

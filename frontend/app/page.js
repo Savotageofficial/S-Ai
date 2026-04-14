@@ -228,7 +228,7 @@ export default function Home() {
             updated[updated.length - 1] = {
               role: "ai",
               content:
-                "Sorry, I couldn't connect to the server. Please make sure the backend is running on `localhost:8000`.",
+                "Sorry, I couldn't connect to the server. Please try again later.",
               isStreaming: false,
             };
             return updated;

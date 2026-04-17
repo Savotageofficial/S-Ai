@@ -182,13 +182,6 @@ export default function Home() {
       const userMessage = { role: "user", content: text };
       const aiMessage = { role: "ai", content: "", isStreaming: true };
 
-      // Build conversation history for the API
-      // Map 'ai' role to 'assistant' for Ollama compatibility
-      const historyForApi = [...messages, userMessage].map((msg) => ({
-        role: msg.role === "ai" ? "assistant" : msg.role,
-        content: msg.content,
-      }));
-
       setMessages((prev) => [...prev, userMessage, aiMessage]);
       setIsStreaming(true);
 
@@ -197,11 +190,8 @@ export default function Home() {
 
       try {
         const response = await fetch(
-          `/api/${selectedModel}`,
+          `/api/${selectedModel}?message=${encodeURIComponent(text)}`,
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages: historyForApi }),
             signal: abortControllerRef.current.signal,
           }
         );
@@ -283,7 +273,7 @@ export default function Home() {
         abortControllerRef.current = null;
       }
     },
-    [inputValue, isStreaming, selectedModel, messages]
+    [inputValue, isStreaming, selectedModel]
   );
 
   const handleStopStreaming = () => {

@@ -54,6 +54,11 @@ const QUICK_ACTIONS = [
    Shared Input JSX (extracted as a plain function
    returning JSX, NOT a component — avoids remount)
    ============================================= */
+const MODELS = [
+  { id: "Safwat-ai", label: "Safwat-ai" },
+  { id: "Safwat-ai-flash", label: "Safwat-ai-flash" },
+];
+
 function renderChatInput({
   textareaRef,
   inputValue,
@@ -62,6 +67,10 @@ function renderChatInput({
   isStreaming,
   handleStopStreaming,
   handleSendMessage,
+  selectedModel,
+  setSelectedModel,
+  modelDropdownOpen,
+  setModelDropdownOpen,
 }) {
   return (
     <div className="input-wrapper">
@@ -80,9 +89,32 @@ function renderChatInput({
           <div className="input-left-actions">
           </div>
           <div className="input-right-actions">
-            <button className="model-selector" id="model-selector">
-              Safwat-ai <ChevronDown />
-            </button>
+            <div className="model-selector-wrapper">
+              <button
+                className="model-selector"
+                id="model-selector"
+                onClick={() => setModelDropdownOpen((prev) => !prev)}
+              >
+                {selectedModel} <ChevronDown />
+              </button>
+              {modelDropdownOpen && (
+                <div className="model-dropdown" id="model-dropdown">
+                  {MODELS.map((model) => (
+                    <button
+                      key={model.id}
+                      className={`model-option${selectedModel === model.id ? " active" : ""}`}
+                      onClick={() => {
+                        setSelectedModel(model.id);
+                        setModelDropdownOpen(false);
+                      }}
+                      id={`model-option-${model.id}`}
+                    >
+                      {model.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {isStreaming ? (
               <button
                 className="send-btn loading"
@@ -118,6 +150,8 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isInChat, setIsInChat] = useState(false);
+  const [selectedModel, setSelectedModel] = useState("Safwat-ai");
+  const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
 
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -156,7 +190,7 @@ export default function Home() {
 
       try {
         const response = await fetch(
-          `/api/Safwat-ai?message=${encodeURIComponent(text)}`,
+          `/api/${selectedModel}?message=${encodeURIComponent(text)}`,
           {
             signal: abortControllerRef.current.signal,
           }
@@ -239,7 +273,7 @@ export default function Home() {
         abortControllerRef.current = null;
       }
     },
-    [inputValue, isStreaming]
+    [inputValue, isStreaming, selectedModel]
   );
 
   const handleStopStreaming = () => {
@@ -271,6 +305,10 @@ export default function Home() {
     isStreaming,
     handleStopStreaming,
     handleSendMessage,
+    selectedModel,
+    setSelectedModel,
+    modelDropdownOpen,
+    setModelDropdownOpen,
   };
 
   /* =============================================

@@ -17,11 +17,29 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Fuck off"}
 
+
+
+
+
+@app.get("/Safwat-ai-flash")
+async def safwatflash_call(message: str):
+    def generate_response():
+        stream = chat(
+            model='Safwat-ai-flash',
+            messages=[{'role': 'user', 'content': message}],
+            stream=True,
+        )
+
+        for chunk in stream:
+            content = chunk['message']['content']
+            yield f"data: {json.dumps({'content': content})}\n\n"
+
+    return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 @app.get("/Safwat-ai")
-async def qwen_call(message: str):
+async def safwatai_call(message: str):
     def generate_response():
         stream = chat(
             model='Safwat-ai',

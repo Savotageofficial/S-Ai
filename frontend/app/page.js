@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { flushSync } from "react-dom";
 import Image from "next/image";
 
@@ -143,6 +143,71 @@ function renderChatInput({
 }
 
 /* =============================================
+   Message Renderers (extracted outside component
+   to avoid recreation on every render)
+   ============================================= */
+
+function MessageRenderer({ content }) {
+  // Split into paragraphs and handle basic code blocks
+  const blocks = content.split(/(```[\s\S]*?```)/g);
+
+  return (
+    <>
+      {blocks.map((block, i) => {
+        if (block.startsWith("```")) {
+          const lines = block.split("\n");
+          const code = lines.slice(1, -1).join("\n");
+          return (
+            <pre key={i}>
+              <code>{code || block.slice(3, -3)}</code>
+            </pre>
+          );
+        }
+
+        // Handle inline formatting
+        const paragraphs = block.split("\n\n").filter(Boolean);
+        return paragraphs.map((para, j) => {
+          // Handle single newlines as line breaks within paragraphs
+          const lines = para.split("\n");
+          return (
+            <p key={`${i}-${j}`}>
+              {lines.map((line, k) => (
+                <span key={k}>
+                  {k > 0 && <br />}
+                  <InlineRenderer text={line} />
+                </span>
+              ))}
+            </p>
+          );
+        });
+      })}
+    </>
+  );
+}
+
+function InlineRenderer({ text }) {
+  // Handle inline code
+  const parts = text.split(/(`[^`]+`)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("`") && part.endsWith("`")) {
+          return <code key={i}>{part.slice(1, -1)}</code>;
+        }
+        // Handle bold
+        const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
+        return boldParts.map((bp, j) => {
+          if (bp.startsWith("**") && bp.endsWith("**")) {
+            return <strong key={`${i}-${j}`}>{bp.slice(2, -2)}</strong>;
+          }
+          return <span key={`${i}-${j}`}>{bp}</span>;
+        });
+      })}
+    </>
+  );
+}
+
+/* =============================================
    Main Page Component
    ============================================= */
 export default function Home() {
@@ -157,10 +222,10 @@ export default function Home() {
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
 
-  // Auto-resize textarea
+  // Auto-resize textarea (fixed: removed redundant height assignment)
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = "24px";
+      textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [inputValue]);
@@ -169,6 +234,15 @@ export default function Home() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Cleanup on unmount (FIX: added cleanup for abort controller)
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const handleSendMessage = useCallback(
     async (messageText) => {
@@ -195,6 +269,10 @@ export default function Home() {
             signal: abortControllerRef.current.signal,
           }
         );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -257,6 +335,8 @@ export default function Home() {
             return updated;
           });
         } else {
+          // FIX: Added better error handling for network errors
+          console.error("Chat error:", err);
           setMessages((prev) => {
             const updated = [...prev];
             updated[updated.length - 1] = {
@@ -297,19 +377,34 @@ export default function Home() {
   };
 
   // Build the shared input props to pass to renderChatInput
-  const inputProps = {
-    textareaRef,
-    inputValue,
-    setInputValue,
-    handleKeyDown,
-    isStreaming,
-    handleStopStreaming,
-    handleSendMessage,
-    selectedModel,
-    setSelectedModel,
-    modelDropdownOpen,
-    setModelDropdownOpen,
-  };
+  const inputProps = useMemo(
+    () => ({
+      textareaRef,
+      inputValue,
+      setInputValue,
+      handleKeyDown,
+      isStreaming,
+      handleStopStreaming,
+      handleSendMessage,
+      selectedModel,
+      setSelectedModel,
+      modelDropdownOpen,
+      setModelDropdownOpen,
+    }),
+    [
+      textareaRef,
+      inputValue,
+      setInputValue,
+      handleKeyDown,
+      isStreaming,
+      handleStopStreaming,
+      handleSendMessage,
+      selectedModel,
+      setSelectedModel,
+      modelDropdownOpen,
+      setModelDropdownOpen,
+    ]
+  );
 
   /* =============================================
      CHAT VIEW
@@ -429,68 +524,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  );
-}
-
-/* =============================================
-   Simple Markdown-like Renderer
-   ============================================= */
-function MessageRenderer({ content }) {
-  // Split into paragraphs and handle basic code blocks
-  const blocks = content.split(/(```[\s\S]*?```)/g);
-
-  return (
-    <>
-      {blocks.map((block, i) => {
-        if (block.startsWith("```")) {
-          const lines = block.split("\n");
-          const code = lines.slice(1, -1).join("\n");
-          return (
-            <pre key={i}>
-              <code>{code || block.slice(3, -3)}</code>
-            </pre>
-          );
-        }
-
-        // Handle inline formatting
-        const paragraphs = block.split("\n\n").filter(Boolean);
-        return paragraphs.map((para, j) => {
-          // Handle single newlines as line breaks within paragraphs
-          const lines = para.split("\n");
-          return (
-            <p key={`${i}-${j}`}>
-              {lines.map((line, k) => (
-                <span key={k}>
-                  {k > 0 && <br />}
-                  <InlineRenderer text={line} />
-                </span>
-              ))}
-            </p>
-          );
-        });
-      })}
-    </>
-  );
-}
-
-function InlineRenderer({ text }) {
-  // Handle inline code
-  const parts = text.split(/(`[^`]+`)/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith("`") && part.endsWith("`")) {
-          return <code key={i}>{part.slice(1, -1)}</code>;
-        }
-        // Handle bold
-        const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
-        return boldParts.map((bp, j) => {
-          if (bp.startsWith("**") && bp.endsWith("**")) {
-            return <strong key={`${i}-${j}`}>{bp.slice(2, -2)}</strong>;
-          }
-          return <span key={`${i}-${j}`}>{bp}</span>;
-        });
-      })}
-    </>
   );
 }

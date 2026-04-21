@@ -222,7 +222,7 @@ export default function Home() {
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
-
+  const conversationHistoryRef = useRef([]);
   // Auto-resize textarea (fixed: removed redundant height assignment)
   useEffect(() => {
     if (textareaRef.current) {
@@ -253,6 +253,11 @@ export default function Home() {
       setInputValue("");
       setIsInChat(true);
 
+      conversationHistoryRef.current = [
+        ...conversationHistoryRef.current,
+        { role: "user", content: text },
+      ];
+
       // Add user message
       const userMessage = { role: "user", content: text };
       const aiMessage = { role: "ai", content: "", isStreaming: true };
@@ -264,12 +269,13 @@ export default function Home() {
       abortControllerRef.current = new AbortController();
 
       try {
-        const response = await fetch(
-          `/api/${selectedModel}?message=${encodeURIComponent(text)}`,
-          {
-            signal: abortControllerRef.current.signal,
-          }
-        );
+          const response = await fetch(`/api/${selectedModel}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: conversationHistoryRef.current }),
+          signal: abortControllerRef.current.signal,
+        });
+
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -313,6 +319,12 @@ export default function Home() {
             }
           }
         }
+
+        // push assistant reply into conversation history after streaming completes
+        conversationHistoryRef.current = [
+          ...conversationHistoryRef.current,
+          { role: "assistant", content: fullContent },
+        ];
 
         // Mark streaming as done
         setMessages((prev) => {
@@ -368,6 +380,7 @@ export default function Home() {
     setMessages([]);
     setIsInChat(false);
     setInputValue("");
+    conversationHistoryRef.current = [];
   };
 
   const handleKeyDown = (e) => {

@@ -19,7 +19,7 @@ app.add_middleware(
 
 client = AsyncOpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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", # Recommened: use os.getenv("OPENROUTER_API_KEY")
+    api_key=os.getenv("OPENROUTER_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
 )
 
 @app.get("/")

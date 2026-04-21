@@ -56,8 +56,8 @@ const QUICK_ACTIONS = [
    ============================================= */
 const MODELS = [
   { id: "Safwat-ai", label: "Safwat-ai" },
-  { id: "Safwat-ai-flash", label: "Safwat-ai-flash" },
-  { id: "openrouter-elephant", label: "openrouter-elephant" },
+  { id: "Safwat-ai-flash", label: "Safwat-ai flash" },
+  { id: "openrouter-elephant", label: "Safwat-ai enhanced" },
 ];
 
 function renderChatInput({

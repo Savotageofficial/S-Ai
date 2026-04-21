@@ -73,7 +73,7 @@ async def safwatai_call(message: str):
     return StreamingResponse(modeldownresponse(), media_type="text/event-stream")
 
 
-@app.get("/openrouter-elephant")
+@app.get("/Safwat-ai-enhanced")
 async def openrouter_elephant(message: str):
     async def generate_response():
 

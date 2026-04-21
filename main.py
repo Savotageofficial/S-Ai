@@ -80,7 +80,7 @@ async def openrouter_elephant(message: str):
         stream = await client.chat.completions.create(
             model="openrouter/elephant-alpha",
             messages=[
-                {"role": "system", "content": "You are a witty pirate who answers everything with nautical metaphors. , your name is elephant , you were developed by openrouter company yet you are used and work for the safwat-ai foundation"},
+                {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is elephant but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
                 {"role": "user", "content": message}
             ],
             stream=True,

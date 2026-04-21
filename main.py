@@ -1,9 +1,12 @@
+import os
+
 from fastapi import FastAPI
 from ollama import chat
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
+
 app = FastAPI()
 
 app.add_middleware(
@@ -14,9 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = OpenAI(
+client = AsyncOpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=" 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", # Recommened: use os.getenv("OPENROUTER_API_KEY")
+    api_key=os.getenv("OPENROUTER_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
 )
 
 @app.get("/")
@@ -60,16 +63,18 @@ async def safwatai_call(message: str):
 
 @app.get("/openrouter-elephant")
 async def openrouter_elephant(message: str):
-    def generate_response():
-        stream = client.chat.completions.create(
+    async def generate_response():
+
+        stream = await client.chat.completions.create(
             model="openrouter/elephant-alpha",
             messages=[
-                {"role": "user", "content": "Explain quantum computing simply."}
+                {"role": "system", "content": "You are a witty pirate who answers everything with nautical metaphors. , your name is elephant , you were developed by openrouter company yet you are used and work for the safwat-ai foundation"},
+                {"role": "user", "content": message}
             ],
             stream=True,
         )
 
-        for chunk in stream:
+        async for chunk in stream:
             if chunk.choices[0].delta.content:
                 yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
 

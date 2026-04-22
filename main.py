@@ -41,7 +41,7 @@ async def root():
 
 
 
-@app.get("/Safwat-ai-flash")
+@app.post("/Safwat-ai-flash")
 async def safwatflash_call(request : ChatRequest):
     async def generate_response():
 
@@ -72,7 +72,7 @@ async def safwatflash_call(request : ChatRequest):
 
     return StreamingResponse(modeldownresponse(), media_type="text/event-stream")
 
-@app.get("/Safwat-ai")
+@app.post("/Safwat-ai")
 async def safwatai_call(request : ChatRequest):
     async def generate_response():
 

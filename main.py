@@ -89,9 +89,9 @@ async def openrouter_elephant(request : ChatRequest):
     async def generate_response():
 
         stream = await client.chat.completions.create(
-            model="openrouter/elephant-alpha",
+            model="nvidia/nemotron-3-super-120b-a12b:free",
             messages=[
-                {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is elephant but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
+                {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is nemotron-3 but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in request.messages]
             ],
             stream=True,

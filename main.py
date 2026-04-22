@@ -77,7 +77,7 @@ async def safwatai_call(request : ChatRequest):
     async def generate_response():
 
         stream = await client.chat.completions.create(
-            model="inclusionai/ling-2.6-flash:free",
+            model="openai/gpt-oss-120b:free",
             messages=[
                 {"role": "system",
                  "content": "You are Safwat-Ai , your core model is ling-2.6 but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},

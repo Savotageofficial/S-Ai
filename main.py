@@ -70,7 +70,7 @@ async def safwatflash_call(request : ChatRequest):
         for word in message.split():
             yield f"data: {json.dumps({'content': word + ' '})}\n\n"
 
-    return StreamingResponse(modeldownresponse(), media_type="text/event-stream")
+    return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 @app.post("/Safwat-ai")
 async def safwatai_call(request : ChatRequest):
@@ -101,7 +101,7 @@ async def safwatai_call(request : ChatRequest):
         for word in message.split():
             yield f"data: {json.dumps({'content': word + ' '})}\n\n"
 
-    return StreamingResponse(modeldownresponse(), media_type="text/event-stream")
+    return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 
 @app.post("/Safwat-ai-enhanced")

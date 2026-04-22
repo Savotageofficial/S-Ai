@@ -80,7 +80,7 @@ async def safwatai_call(request : ChatRequest):
             model="openai/gpt-oss-120b:free",
             messages=[
                 {"role": "system",
-                 "content": "You are Safwat-Ai , your core model is ling-2.6 but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
+                 "content": "You are Safwat-Ai , your core model is gpt-oss but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in request.messages]
             ],
             stream=True,

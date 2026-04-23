@@ -292,6 +292,55 @@ html, body {
   border-color: var(--border-hover);
 }
 
+/* ---- PDF Chip ---- */
+.pdf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.5rem;
+  margin-bottom: 0.6rem;
+  background: rgba(200, 184, 154, 0.1);
+  border: 1px solid rgba(200, 184, 154, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  color: var(--text-accent);
+  animation: fadeInUp 0.25s ease-out;
+  max-width: 100%;
+}
+
+.pdf-chip-icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.pdf-chip-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.pdf-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+  margin-left: 0.15rem;
+}
+
+.pdf-chip-remove:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
 /* ---- Model Selector ---- */
 .model-selector {
   display: flex;

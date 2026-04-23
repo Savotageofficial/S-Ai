@@ -14,6 +14,13 @@ const PlusIcon = () => (
   </svg>
 );
 
+const CloseIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <line x1="2" y1="2" x2="10" y2="10" />
+    <line x1="10" y1="2" x2="2" y2="10" />
+  </svg>
+);
+
 const SendIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
     <path d="M2.5 2.5L14 8L2.5 13.5V9.5L10 8L2.5 6.5V2.5Z" />
@@ -72,10 +79,28 @@ function renderChatInput({
   setSelectedModel,
   modelDropdownOpen,
   setModelDropdownOpen,
+  pdfFileName,
+  fileInputRef,
+  handlePdfSelect,
+  handlePdfRemove,
 }) {
   return (
     <div className="input-wrapper">
       <div className="input-container">
+        {pdfFileName && (
+          <div className="pdf-chip" id="pdf-chip">
+            <span className="pdf-chip-icon">📄</span>
+            <span className="pdf-chip-name">{pdfFileName}</span>
+            <button
+              className="pdf-chip-remove"
+              onClick={handlePdfRemove}
+              title="Remove PDF"
+              id="pdf-remove-btn"
+            >
+              <CloseIcon />
+            </button>
+          </div>
+        )}
         <textarea
           ref={textareaRef}
           className="input-field"
@@ -88,6 +113,22 @@ function renderChatInput({
         />
         <div className="input-actions">
           <div className="input-left-actions">
+            <input
+              type="file"
+              accept=".pdf"
+              ref={fileInputRef}
+              onChange={handlePdfSelect}
+              style={{ display: "none" }}
+              id="pdf-file-input"
+            />
+            <button
+              className="attach-btn"
+              onClick={() => fileInputRef.current?.click()}
+              title="Upload PDF"
+              id="pdf-upload-btn"
+            >
+              <PlusIcon />
+            </button>
           </div>
           <div className="input-right-actions">
             <div className="model-selector-wrapper">
@@ -218,11 +259,14 @@ export default function Home() {
   const [isInChat, setIsInChat] = useState(false);
   const [selectedModel, setSelectedModel] = useState("Safwat-ai");
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
+  const [pdfContext, setPdfContext] = useState("");
+  const [pdfFileName, setPdfFileName] = useState("");
 
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
   const conversationHistoryRef = useRef([]);
+  const fileInputRef = useRef(null);
   // Auto-resize textarea (fixed: removed redundant height assignment)
   useEffect(() => {
     if (textareaRef.current) {
@@ -243,6 +287,45 @@ export default function Home() {
         abortControllerRef.current.abort();
       }
     };
+  }, []);
+
+  // ---- PDF handlers ----
+  const handlePdfSelect = useCallback(async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setPdfFileName(file.name);
+
+    try {
+      const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = "";
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item) => item.str).join(" ");
+        fullText += pageText + "\n";
+      }
+
+      setPdfContext(fullText.trim());
+    } catch (err) {
+      console.error("PDF extraction error:", err);
+      setPdfContext("");
+      setPdfFileName("");
+    }
+
+    // Reset the input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, []);
+
+  const handlePdfRemove = useCallback(() => {
+    setPdfContext("");
+    setPdfFileName("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }, []);
 
   const handleSendMessage = useCallback(
@@ -272,7 +355,10 @@ export default function Home() {
           const response = await fetch(`/api/${selectedModel}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: conversationHistoryRef.current }),
+          body: JSON.stringify({
+            messages: conversationHistoryRef.current,
+            context: pdfContext || "",
+          }),
           signal: abortControllerRef.current.signal,
         });
 
@@ -366,7 +452,7 @@ export default function Home() {
         abortControllerRef.current = null;
       }
     },
-    [inputValue, isStreaming, selectedModel]
+    [inputValue, isStreaming, selectedModel, pdfContext]
   );
 
   const handleStopStreaming = () => {
@@ -380,7 +466,10 @@ export default function Home() {
     setMessages([]);
     setIsInChat(false);
     setInputValue("");
+    setPdfContext("");
+    setPdfFileName("");
     conversationHistoryRef.current = [];
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleKeyDown = (e) => {
@@ -404,6 +493,10 @@ export default function Home() {
       setSelectedModel,
       modelDropdownOpen,
       setModelDropdownOpen,
+      pdfFileName,
+      fileInputRef,
+      handlePdfSelect,
+      handlePdfRemove,
     }),
     [
       textareaRef,
@@ -417,6 +510,10 @@ export default function Home() {
       setSelectedModel,
       modelDropdownOpen,
       setModelDropdownOpen,
+      pdfFileName,
+      fileInputRef,
+      handlePdfSelect,
+      handlePdfRemove,
     ]
   );
 

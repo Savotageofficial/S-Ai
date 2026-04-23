@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import json
 from openai import OpenAI, AsyncOpenAI
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 
@@ -18,6 +18,7 @@ class Message(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[Message]
+    context: Optional[str] = ""
 app = FastAPI()
 
 app.add_middleware(
@@ -52,13 +53,22 @@ async def root():
 @app.post("/Safwat-ai-flash")
 async def safwatflash_call(request : ChatRequest):
     async def generate_response():
+        processed_messages = list(request.messages)
+        if request.context:
+            last = processed_messages[-1]
+            augmented_content = (
+                f"Use the following document as context to answer the user's question.\n"
+                f"--- DOCUMENT ---\n{request.context}\n--- END DOCUMENT ---\n\n"
+                f"User: {last.content}"
+            )
+            processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         stream = await client.chat.completions.create(
             model="nvidia/nemotron-3-nano-30b-a3b:free",
             messages=[
                 {"role": "system",
                  "content": "You are Safwat-Ai Flash , your core model is nemotron-3 but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
-                *[{"role": m.role, "content": m.content} for m in request.messages]
+                *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
         )
@@ -83,13 +93,22 @@ async def safwatflash_call(request : ChatRequest):
 @app.post("/Safwat-ai")
 async def safwatai_call(request : ChatRequest):
     async def generate_response():
+        processed_messages = list(request.messages)
+        if request.context:
+            last = processed_messages[-1]
+            augmented_content = (
+                f"Use the following document as context to answer the user's question.\n"
+                f"--- DOCUMENT ---\n{request.context}\n--- END DOCUMENT ---\n\n"
+                f"User: {last.content}"
+            )
+            processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         stream = await client.chat.completions.create(
             model="openai/gpt-oss-120b:free",
             messages=[
                 {"role": "system",
                  "content": "You are Safwat-Ai , your core model is gpt-oss but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
-                *[{"role": m.role, "content": m.content} for m in request.messages]
+                *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
         )
@@ -115,13 +134,22 @@ async def safwatai_call(request : ChatRequest):
 @app.post("/Safwat-ai-enhanced")
 async def openrouter_elephant(request : ChatRequest):
     async def generate_response():
+        processed_messages = list(request.messages)
+        if request.context:
+            last = processed_messages[-1]
+            augmented_content = (
+                f"Use the following document as context to answer the user's question.\n"
+                f"--- DOCUMENT ---\n{request.context}\n--- END DOCUMENT ---\n\n"
+                f"User: {last.content}"
+            )
+            processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         stream = await client.chat.completions.create(
             #nvidia/nemotron-3-super-120b-a12b:free for nvidia
             model="qwen/qwen3-coder:free",
             messages=[
                 {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is qwen3 coder but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
-                *[{"role": m.role, "content": m.content} for m in request.messages]
+                *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
         )

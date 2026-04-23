@@ -5,6 +5,23 @@ import { flushSync } from "react-dom";
 import Image from "next/image";
 
 /* =============================================
+   Toast Component for Notifications
+   ============================================= */
+function Toast({ message, type, onClose }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`toast toast-${type}`}>
+      <span>{message}</span>
+      <button onClick={onClose} className="toast-close">×</button>
+    </div>
+  );
+}
+
+/* =============================================
    Icons (inline SVGs)
    ============================================= */
 const PlusIcon = () => (
@@ -58,8 +75,7 @@ const QUICK_ACTIONS = [
 ];
 
 /* =============================================
-   Shared Input JSX (extracted as a plain function
-   returning JSX, NOT a component — avoids remount)
+   Models Configuration
    ============================================= */
 const MODELS = [
   { id: "Safwat-ai", label: "Safwat-ai" },
@@ -67,6 +83,9 @@ const MODELS = [
   { id: "Safwat-ai-enhanced", label: "Safwat-ai enhanced" },
 ];
 
+/* =============================================
+   Shared Input JSX
+   ============================================= */
 function renderChatInput({
   textareaRef,
   inputValue,
@@ -83,6 +102,7 @@ function renderChatInput({
   fileInputRef,
   handlePdfSelect,
   handlePdfRemove,
+  isProcessingPdf,
 }) {
   return (
     <div className="input-wrapper">
@@ -104,12 +124,13 @@ function renderChatInput({
         <textarea
           ref={textareaRef}
           className="input-field"
-          placeholder="How can I help you today?"
+          placeholder={isProcessingPdf ? "Processing PDF..." : "How can I help you today?"}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
           id="chat-input"
+          disabled={isProcessingPdf}
         />
         <div className="input-actions">
           <div className="input-left-actions">
@@ -120,12 +141,14 @@ function renderChatInput({
               onChange={handlePdfSelect}
               style={{ display: "none" }}
               id="pdf-file-input"
+              disabled={isProcessingPdf}
             />
             <button
               className="attach-btn"
               onClick={() => fileInputRef.current?.click()}
               title="Upload PDF"
               id="pdf-upload-btn"
+              disabled={isProcessingPdf}
             >
               <PlusIcon />
             </button>
@@ -136,6 +159,7 @@ function renderChatInput({
                 className="model-selector"
                 id="model-selector"
                 onClick={() => setModelDropdownOpen((prev) => !prev)}
+                disabled={isProcessingPdf}
               >
                 {selectedModel} <ChevronDown />
               </button>
@@ -170,7 +194,7 @@ function renderChatInput({
               <button
                 className="send-btn"
                 onClick={() => handleSendMessage()}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isProcessingPdf}
                 title="Send message"
                 id="send-btn"
               >
@@ -185,12 +209,9 @@ function renderChatInput({
 }
 
 /* =============================================
-   Message Renderers (extracted outside component
-   to avoid recreation on every render)
+   Message Renderers
    ============================================= */
-
 function MessageRenderer({ content }) {
-  // Split into paragraphs and handle basic code blocks
   const blocks = content.split(/(```[\s\S]*?```)/g);
 
   return (
@@ -206,10 +227,8 @@ function MessageRenderer({ content }) {
           );
         }
 
-        // Handle inline formatting
         const paragraphs = block.split("\n\n").filter(Boolean);
         return paragraphs.map((para, j) => {
-          // Handle single newlines as line breaks within paragraphs
           const lines = para.split("\n");
           return (
             <p key={`${i}-${j}`}>
@@ -228,7 +247,6 @@ function MessageRenderer({ content }) {
 }
 
 function InlineRenderer({ text }) {
-  // Handle inline code
   const parts = text.split(/(`[^`]+`)/g);
   return (
     <>
@@ -236,7 +254,6 @@ function InlineRenderer({ text }) {
         if (part.startsWith("`") && part.endsWith("`")) {
           return <code key={i}>{part.slice(1, -1)}</code>;
         }
-        // Handle bold
         const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
         return boldParts.map((bp, j) => {
           if (bp.startsWith("**") && bp.endsWith("**")) {
@@ -261,13 +278,23 @@ export default function Home() {
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [pdfContext, setPdfContext] = useState("");
   const [pdfFileName, setPdfFileName] = useState("");
+  const [isProcessingPdf, setIsProcessingPdf] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [isSending, setIsSending] = useState(false);
 
   const textareaRef = useRef(null);
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
   const conversationHistoryRef = useRef([]);
   const fileInputRef = useRef(null);
-  // Auto-resize textarea (fixed: removed redundant height assignment)
+  const queueRef = useRef([]);
+
+  // Show toast notification
+  const showToast = useCallback((message, type = 'info') => {
+    setToast({ message, type });
+  }, []);
+
+  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -280,7 +307,7 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Cleanup on unmount (FIX: added cleanup for abort controller)
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -289,179 +316,271 @@ export default function Home() {
     };
   }, []);
 
-  // ---- PDF handlers ----
+  // Process message queue
+  const processQueue = useCallback(async () => {
+    if (isSending || queueRef.current.length === 0) return;
+
+    const nextMessage = queueRef.current.shift();
+    setIsSending(true);
+
+    try {
+      await handleSendMessage(nextMessage);
+    } catch (error) {
+      console.error("Queue processing error:", error);
+    } finally {
+      setIsSending(false);
+      processQueue();
+    }
+  }, [isSending]);
+
+  // Queue message handler
+  const handleSendMessageQueued = useCallback((text) => {
+    queueRef.current.push(text);
+    processQueue();
+  }, [processQueue]);
+
+  // SEND MESSAGE
+  const handleSendMessage = useCallback(async (messageText) => {
+    const text = messageText || inputValue.trim();
+    if (!text || isStreaming || isProcessingPdf) return;
+
+    setInputValue("");
+    setIsInChat(true);
+
+    // Create temporary ID for rollback
+    const tempId = Date.now();
+
+    // Add user message to history
+    const userMessageObj = { role: "user", content: text, tempId };
+    conversationHistoryRef.current = [
+      ...conversationHistoryRef.current,
+      userMessageObj,
+    ];
+
+    const userMessage = { role: "user", content: text };
+    const aiMessage = { role: "ai", content: "", isStreaming: true };
+
+    setMessages((prev) => [...prev, userMessage, aiMessage]);
+    setIsStreaming(true);
+
+    abortControllerRef.current = new AbortController();
+
+    // Set timeout for the request
+    const timeoutId = setTimeout(() => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      showToast("Request timeout. Please try again.", 'error');
+    }, 60000); // 60 second timeout
+
+    try {
+      const response = await fetch(`/api/${selectedModel}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: conversationHistoryRef.current.map(({ role, content }) => ({ role, content })),
+          context: pdfContext || "",
+        }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.content) {
+                fullContent += data.content;
+                const snapshot = fullContent;
+
+                flushSync(() => {
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    if (updated[updated.length - 1]) {
+                      updated[updated.length - 1] = {
+                        role: "ai",
+                        content: snapshot,
+                        isStreaming: true,
+                      };
+                    }
+                    return updated;
+                  });
+                });
+              }
+            } catch (e) {
+              console.error("Parse error:", e);
+            }
+          }
+        }
+      }
+
+      // Add successful response to history
+      conversationHistoryRef.current = [
+        ...conversationHistoryRef.current,
+        { role: "assistant", content: fullContent },
+      ];
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        if (updated[updated.length - 1]) {
+          updated[updated.length - 1].isStreaming = false;
+        }
+        return updated;
+      });
+
+    } catch (err) {
+      clearTimeout(timeoutId);
+
+      // Rollback - remove the failed user message from history
+      conversationHistoryRef.current = conversationHistoryRef.current.filter(
+        msg => msg.tempId !== tempId
+      );
+
+      let errorMessage = "An error occurred. Please try again.";
+
+      if (err.name === 'AbortError') {
+        errorMessage = "Request was cancelled or timed out.";
+      } else if (err.message.includes('fetch')) {
+        errorMessage = "Network error. Please check your connection.";
+      } else if (err.message.includes('API Error')) {
+        errorMessage = "Server error. Please try again later.";
+      }
+
+      // Remove streaming message and show error
+      setMessages((prev) => {
+        const updated = [...prev];
+        updated.pop(); // Remove streaming message
+        updated.pop(); // Remove user message
+        updated.push({
+          role: "ai",
+          content: errorMessage,
+          isStreaming: false,
+          isError: true,
+        });
+        return updated;
+      });
+
+      showToast(errorMessage, 'error');
+    } finally {
+      setIsStreaming(false);
+      abortControllerRef.current = null;
+    }
+  }, [inputValue, isStreaming, selectedModel, pdfContext, isProcessingPdf, showToast]);
+
+  // PDF HANDLER
   const handlePdfSelect = useCallback(async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      showToast("Please upload a valid PDF file.", 'error');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      showToast("PDF file too large. Maximum 10MB.", 'error');
+      return;
+    }
+
     setPdfFileName(file.name);
+    setIsProcessingPdf(true);
+    setInputValue("Processing PDF...");
 
     try {
-      const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+      // Load PDF library with timeout
+      const pdfjsLib = await Promise.race([
+        import("pdfjs-dist/legacy/build/pdf.mjs"),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("PDF library failed to load")), 10000)
+        )
+      ]);
+
       pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+      // Limit to 50 pages maximum
+      const maxPages = Math.min(pdf.numPages, 50);
       let fullText = "";
 
-      for (let i = 1; i <= pdf.numPages; i++) {
+      for (let i = 1; i <= maxPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map((item) => item.str).join(" ");
         fullText += pageText + "\n";
+
+        // Update progress every 10 pages
+        if (i % 10 === 0) {
+          setInputValue(`Processing PDF: ${i}/${maxPages} pages...`);
+        }
+      }
+
+      if (!fullText.trim()) {
+        throw new Error("No text could be extracted from this PDF.");
       }
 
       setPdfContext(fullText.trim());
+      setInputValue("");
+      setIsInChat(true);
+
+      showToast("PDF uploaded and processed successfully!", 'success');
+
+      // Auto focus on textarea
+      requestAnimationFrame(() => {
+        textareaRef.current?.focus();
+      });
+
+      // Auto send summary request
+      setTimeout(() => {
+        handleSendMessageQueued(`Please provide a comprehensive summary of this PDF document. Focus on the main points and key information.`);
+      }, 500);
+
     } catch (err) {
-      console.error("PDF extraction error:", err);
+      console.error("PDF Error:", err);
       setPdfContext("");
       setPdfFileName("");
+      setInputValue("");
+      showToast(`Failed to process PDF: ${err.message}`, 'error');
+    } finally {
+      setIsProcessingPdf(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-
-    // Reset the input so the same file can be re-selected
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }, []);
+  }, [handleSendMessageQueued, showToast]);
 
   const handlePdfRemove = useCallback(() => {
     setPdfContext("");
     setPdfFileName("");
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, []);
+    showToast("PDF removed successfully.", 'info');
+  }, [showToast]);
 
-  const handleSendMessage = useCallback(
-    async (messageText) => {
-      const text = messageText || inputValue.trim();
-      if (!text || isStreaming) return;
-
-      setInputValue("");
-      setIsInChat(true);
-
-      conversationHistoryRef.current = [
-        ...conversationHistoryRef.current,
-        { role: "user", content: text },
-      ];
-
-      // Add user message
-      const userMessage = { role: "user", content: text };
-      const aiMessage = { role: "ai", content: "", isStreaming: true };
-
-      setMessages((prev) => [...prev, userMessage, aiMessage]);
-      setIsStreaming(true);
-
-      // Create abort controller for cancellation
-      abortControllerRef.current = new AbortController();
-
-      try {
-          const response = await fetch(`/api/${selectedModel}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: conversationHistoryRef.current,
-            context: pdfContext || "",
-          }),
-          signal: abortControllerRef.current.signal,
-        });
-
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullContent = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
-
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.content) {
-                  fullContent += data.content;
-                  // Use flushSync to force React to render each chunk immediately
-                  // instead of batching — this gives the streaming effect
-                  const contentSnapshot = fullContent;
-                  flushSync(() => {
-                    setMessages((prev) => {
-                      const updated = [...prev];
-                      updated[updated.length - 1] = {
-                        role: "ai",
-                        content: contentSnapshot,
-                        isStreaming: true,
-                      };
-                      return updated;
-                    });
-                  });
-                }
-              } catch {
-                // skip malformed JSON
-              }
-            }
-          }
-        }
-
-        // push assistant reply into conversation history after streaming completes
-        conversationHistoryRef.current = [
-          ...conversationHistoryRef.current,
-          { role: "assistant", content: fullContent },
-        ];
-
-        // Mark streaming as done
-        setMessages((prev) => {
-          const updated = [...prev];
-          updated[updated.length - 1] = {
-            ...updated[updated.length - 1],
-            isStreaming: false,
-          };
-          return updated;
-        });
-      } catch (err) {
-        if (err.name === "AbortError") {
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              ...updated[updated.length - 1],
-              isStreaming: false,
-              content:
-                updated[updated.length - 1].content || "Message cancelled.",
-            };
-            return updated;
-          });
-        } else {
-          // FIX: Added better error handling for network errors
-          console.error("Chat error:", err);
-          setMessages((prev) => {
-            const updated = [...prev];
-            updated[updated.length - 1] = {
-              role: "ai",
-              content:
-                "Sorry, I couldn't connect to the server. Please try again later.",
-              isStreaming: false,
-            };
-            return updated;
-          });
-        }
-      } finally {
-        setIsStreaming(false);
-        abortControllerRef.current = null;
-      }
-    },
-    [inputValue, isStreaming, selectedModel, pdfContext]
-  );
-
-  const handleStopStreaming = () => {
+  const handleStopStreaming = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
+      showToast("Generation stopped.", 'info');
     }
-  };
+  }, [showToast]);
 
-  const handleNewChat = () => {
+  const handleNewChat = useCallback(() => {
     if (isStreaming) handleStopStreaming();
     setMessages([]);
     setIsInChat(false);
@@ -469,17 +588,19 @@ export default function Home() {
     setPdfContext("");
     setPdfFileName("");
     conversationHistoryRef.current = [];
+    queueRef.current = [];
     if (fileInputRef.current) fileInputRef.current.value = "";
-  };
+    showToast("New conversation started.", 'info');
+  }, [isStreaming, handleStopStreaming, showToast]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === "Enter" && !e.shiftKey && !isStreaming && !isProcessingPdf) {
       e.preventDefault();
-      handleSendMessage();
+      handleSendMessageQueued(inputValue);
     }
-  };
+  }, [inputValue, isStreaming, isProcessingPdf, handleSendMessageQueued]);
 
-  // Build the shared input props to pass to renderChatInput
+  // Build the shared input props
   const inputProps = useMemo(
     () => ({
       textareaRef,
@@ -488,7 +609,7 @@ export default function Home() {
       handleKeyDown,
       isStreaming,
       handleStopStreaming,
-      handleSendMessage,
+      handleSendMessage: handleSendMessageQueued,
       selectedModel,
       setSelectedModel,
       modelDropdownOpen,
@@ -497,6 +618,7 @@ export default function Home() {
       fileInputRef,
       handlePdfSelect,
       handlePdfRemove,
+      isProcessingPdf,
     }),
     [
       textareaRef,
@@ -505,7 +627,7 @@ export default function Home() {
       handleKeyDown,
       isStreaming,
       handleStopStreaming,
-      handleSendMessage,
+      handleSendMessageQueued,
       selectedModel,
       setSelectedModel,
       modelDropdownOpen,
@@ -514,6 +636,7 @@ export default function Home() {
       fileInputRef,
       handlePdfSelect,
       handlePdfRemove,
+      isProcessingPdf,
     ]
   );
 
@@ -523,9 +646,9 @@ export default function Home() {
   if (isInChat) {
     return (
       <div className="app-container">
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
         <div className="bg-gradient" />
         <div className="chat-view">
-          {/* Header */}
           <header className="chat-header">
             <div className="chat-header-left">
               <Image
@@ -537,23 +660,18 @@ export default function Home() {
               />
               <span className="chat-header-title">S-AI</span>
             </div>
-            <button
-              className="new-chat-btn"
-              onClick={handleNewChat}
-              id="new-chat-btn"
-            >
+            <button className="new-chat-btn" onClick={handleNewChat} id="new-chat-btn">
               <NewChatIcon /> New Chat
             </button>
           </header>
 
-          {/* Messages */}
           <div className="messages-container">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
                 className={`message ${
                   msg.role === "user" ? "message-user" : "message-ai"
-                }`}
+                } ${msg.isError ? "message-error" : ""}`}
               >
                 {msg.role === "ai" && (
                   <Image
@@ -584,7 +702,6 @@ export default function Home() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Bottom Input — rendered inline, NOT as a component */}
           <div className="chat-input-wrapper">
             {renderChatInput(inputProps)}
           </div>
@@ -598,6 +715,7 @@ export default function Home() {
      ============================================= */
   return (
     <div className="app-container">
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       <div className="bg-gradient" />
       <div className="welcome-screen">
         <div className="logo-container">
@@ -615,7 +733,6 @@ export default function Home() {
           How can I <span className="highlight">help you</span> today?
         </h1>
 
-        {/* Input — rendered inline, NOT as a component */}
         {renderChatInput(inputProps)}
 
         <div className="quick-actions">

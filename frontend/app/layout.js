@@ -1,9 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "S-AI — Intelligent Chat Assistant",
+  title: "Asterisk — Intelligent Chat Assistant",
   description:
-    "Chat with S-AI, your intelligent coding assistant powered by advanced language models.",
+    "Chat with Asterisk, your intelligent coding assistant powered by advanced language models.",
 };
 
 export default function RootLayout({ children }) {

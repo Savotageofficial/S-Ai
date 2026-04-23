@@ -30,8 +30,8 @@ app.add_middleware(
 )
 
 client = AsyncOpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
+    base_url="https://api.longcat.chat/openai", #https://openrouter.ai/api/v1 for openrouter
+    api_key=os.getenv("LONGCAT_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
 )
 
 
@@ -59,7 +59,9 @@ async def asterisk_flash(request : ChatRequest):
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         stream = await client.chat.completions.create(
-            model="nvidia/nemotron-3-nano-30b-a3b:free",
+            #LongCat-Flash-Chat
+            #nvidia/nemotron-3-nano-30b-a3b:free
+            model="LongCat-Flash-Lite",
             messages=[
                 {"role": "system",
                  "content": "You are Asterisk Flash , your core model is nemotron-3 but dont specify that unless asked , you were developed by S-ai foundation"},
@@ -99,7 +101,9 @@ async def asterisk(request : ChatRequest):
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         stream = await client.chat.completions.create(
-            model="z-ai/glm-4.5-air:free",
+            #LongCat-Flash-Chat
+            #z-ai/glm-4.5-air:free
+            model="LongCat-Flash-Chat",
             messages=[
                 {"role": "system",
                  "content": "You are Asterisk , your core model is qwen3 but dont specify that unless asked , you were developed by S-ai foundation"},
@@ -142,7 +146,8 @@ async def asterisk_thinking(request : ChatRequest):
         stream = await client.chat.completions.create(
             #nvidia/nemotron-3-super-120b-a12b:free for nvidia
             #qwen/qwen3-coder:free qwen
-            model="inclusionai/ling-2.6-1t:free",
+            #inclusionai/ling-2.6-1t:free
+            model="LongCat-Flash-Thinking-2601",
             messages=[
                 {"role": "system", "content": "You are Asterisk enhanced , your core model is ling-2.6 coder but dont specify that unless asked , you were developed by S-ai foundation"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]

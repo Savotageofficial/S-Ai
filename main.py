@@ -104,7 +104,7 @@ async def safwatai_call(request : ChatRequest):
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         stream = await client.chat.completions.create(
-            model="openai/gpt-oss-120b:free",
+            model="qwen/qwen3-next-80b-a3b-instruct:free",
             messages=[
                 {"role": "system",
                  "content": "You are Safwat-Ai , your core model is gpt-oss but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
@@ -146,7 +146,8 @@ async def openrouter_elephant(request : ChatRequest):
 
         stream = await client.chat.completions.create(
             #nvidia/nemotron-3-super-120b-a12b:free for nvidia
-            model="qwen/qwen3-coder:free",
+            #qwen/qwen3-coder:free qwen
+            model="inclusionai/ling-2.6-1t:free",
             messages=[
                 {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is qwen3 coder but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]

@@ -96,9 +96,9 @@ const QUICK_ACTIONS = [
    returning JSX, NOT a component — avoids remount)
    ============================================= */
 const MODELS = [
-  { id: "Safwat-ai", label: "Safwat-ai" },
-  { id: "Safwat-ai-flash", label: "Safwat-ai flash" },
-  { id: "Safwat-ai-enhanced", label: "Safwat-ai enhanced" },
+  { id: "Asterisk", label: "Asterisk" },
+  { id: "Asterisk-flash", label: "Asterisk flash" },
+  { id: "Asterisk-Thinking", label: "Asterisk Thinking" },
 ];
 
 function renderChatInput({
@@ -291,7 +291,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isInChat, setIsInChat] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("Safwat-ai");
+  const [selectedModel, setSelectedModel] = useState("Asterisk");
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [pdfContext, setPdfContext] = useState("");
   const [pdfFileName, setPdfFileName] = useState("");
@@ -598,8 +598,8 @@ export default function Home() {
               >
                 {msg.role === "ai" && (
                   <Image
-                    src="/logo.png"
-                    alt="S-AI"
+                    src="/astrict_dark.jpeg"
+                    alt="Astrict"
                     width={32}
                     height={32}
                     className="message-ai-avatar"
@@ -651,8 +651,8 @@ export default function Home() {
       <div className="welcome-screen">
         <div className="logo-container">
           <Image
-            src="/logo.png"
-            alt="S-AI Logo"
+            src="/astrict_dark.jpeg"
+            alt="Astrict Logo"
             width={80}
             height={80}
             className="logo"

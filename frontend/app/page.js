@@ -8,14 +8,30 @@ import Image from "next/image";
    Icons (inline SVGs)
    ============================================= */
 const PlusIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+  >
     <line x1="8" y1="3" x2="8" y2="13" />
     <line x1="3" y1="8" x2="13" y2="8" />
   </svg>
 );
 
 const CloseIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+  >
     <line x1="2" y1="2" x2="10" y2="10" />
     <line x1="10" y1="2" x2="2" y2="10" />
   </svg>
@@ -28,7 +44,16 @@ const SendIcon = () => (
 );
 
 const ChevronDown = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M3 4.5L6 7.5L9 4.5" />
   </svg>
 );
@@ -40,7 +65,16 @@ const StopIcon = () => (
 );
 
 const NewChatIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M13.5 2.5L6.5 9.5L4 10L4.5 7.5L11.5 0.5L13.5 2.5Z" />
     <path d="M2 13H14" />
   </svg>
@@ -352,7 +386,7 @@ export default function Home() {
       abortControllerRef.current = new AbortController();
 
       try {
-          const response = await fetch(`/api/${selectedModel}`, {
+        const response = await fetch(`/api/${selectedModel}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -361,7 +395,6 @@ export default function Home() {
           }),
           signal: abortControllerRef.current.signal,
         });
-
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -450,9 +483,12 @@ export default function Home() {
       } finally {
         setIsStreaming(false);
         abortControllerRef.current = null;
+        setPdfFileName("");
+        setPdfContext("");
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
     },
-    [inputValue, isStreaming, selectedModel, pdfContext]
+    [inputValue, isStreaming, selectedModel, pdfContext],
   );
 
   const handleStopStreaming = () => {
@@ -514,7 +550,7 @@ export default function Home() {
       fileInputRef,
       handlePdfSelect,
       handlePdfRemove,
-    ]
+    ],
   );
 
   /* =============================================

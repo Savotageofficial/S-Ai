@@ -45,7 +45,7 @@ async def root():
 
 
 
-@app.post("/asterisk-flash")
+@app.post("/Asterisk-flash")
 async def asterisk_flash(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)
@@ -85,7 +85,7 @@ async def asterisk_flash(request : ChatRequest):
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
-@app.post("/asterisk")
+@app.post("/Asterisk")
 async def asterisk(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)
@@ -126,7 +126,7 @@ async def asterisk(request : ChatRequest):
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 
-@app.post("/asterisk-thinking")
+@app.post("/Asterisk-thinking")
 async def asterisk_thinking(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)

@@ -33,6 +33,14 @@ client = AsyncOpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
 )
 
+
+
+"""
+planned , lemon ai model series
+planned , sand ai model series
+planned , tree ai as a foundation name
+
+"""
 @app.get("/")
 async def root():
     return {"message": "Fuck off"}
@@ -49,7 +57,7 @@ async def safwatflash_call(request : ChatRequest):
             model="nvidia/nemotron-3-nano-30b-a3b:free",
             messages=[
                 {"role": "system",
-                 "content": "You are Safwat-Ai Flash , your core model is nemotron-3 but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
+                 "content": "You are Safwat-Ai Flash , your core model is nemotron-3 but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in request.messages]
             ],
             stream=True,
@@ -80,7 +88,7 @@ async def safwatai_call(request : ChatRequest):
             model="openai/gpt-oss-120b:free",
             messages=[
                 {"role": "system",
-                 "content": "You are Safwat-Ai , your core model is gpt-oss but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
+                 "content": "You are Safwat-Ai , your core model is gpt-oss but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in request.messages]
             ],
             stream=True,
@@ -112,7 +120,7 @@ async def openrouter_elephant(request : ChatRequest):
             #nvidia/nemotron-3-super-120b-a12b:free for nvidia
             model="qwen/qwen3-coder:free",
             messages=[
-                {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is qwen3 coder but dont specify that unless asked , you were developed by Safwat-ai foundation and specifically developed and trained by mohamed safwat"},
+                {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is qwen3 coder but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in request.messages]
             ],
             stream=True,

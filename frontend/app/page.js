@@ -368,6 +368,7 @@ export default function Home() {
       if ((!text && !pdfContext) || isStreaming) return;
 
       setInputValue("");
+      const currentPdfFileName = pdfFileName; // Capture before clearing
       setPdfFileName("");
       setPdfContext("");
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -378,8 +379,12 @@ export default function Home() {
         { role: "user", content: text },
       ];
 
-      // Add user message
-      const userMessage = { role: "user", content: text };
+      // Add user message with file info if PDF was attached
+      const userMessage = {
+        role: "user",
+        content: text,
+        file: currentPdfFileName || undefined,
+      };
       const aiMessage = { role: "ai", content: "", isStreaming: true };
 
       setMessages((prev) => [...prev, userMessage, aiMessage]);
@@ -601,7 +606,15 @@ export default function Home() {
                   />
                 )}
                 {msg.role === "user" ? (
-                  <div className="message-bubble">{msg.content}</div>
+                  <div className="message-bubble">
+                    {msg.file && (
+                      <div className="message-file-info">
+                        <span className="file-icon">📄</span>
+                        <span className="file-name">{msg.file}</span>
+                      </div>
+                    )}
+                    {msg.content}
+                  </div>
                 ) : (
                   <div className="message-content">
                     {msg.content ? (

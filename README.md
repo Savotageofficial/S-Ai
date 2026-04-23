@@ -4,7 +4,7 @@
 
 **A fast, multi-model AI chatbot with a Next.js frontend and FastAPI backend.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-s--ai--sage.vercel.app-black?style=for-the-badge&logo=vercel)](https://safwat-ai.duckdns.org/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-safwat--ai--duckdns.org-black?style=for-the-badge&logo=vercel)](https://safwat-ai.duckdns.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-Frontend-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)

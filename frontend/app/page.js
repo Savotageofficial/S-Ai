@@ -204,7 +204,7 @@ function renderChatInput({
               <button
                 className="send-btn"
                 onClick={() => handleSendMessage()}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() && !pdfFileName}
                 title="Send message"
                 id="send-btn"
               >
@@ -365,9 +365,12 @@ export default function Home() {
   const handleSendMessage = useCallback(
     async (messageText) => {
       const text = messageText || inputValue.trim();
-      if (!text || isStreaming) return;
+      if ((!text && !pdfContext) || isStreaming) return;
 
       setInputValue("");
+      setPdfFileName("");
+      setPdfContext("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
       setIsInChat(true);
 
       conversationHistoryRef.current = [
@@ -483,9 +486,6 @@ export default function Home() {
       } finally {
         setIsStreaming(false);
         abortControllerRef.current = null;
-        setPdfFileName("");
-        setPdfContext("");
-        if (fileInputRef.current) fileInputRef.current.value = "";
       }
     },
     [inputValue, isStreaming, selectedModel, pdfContext],

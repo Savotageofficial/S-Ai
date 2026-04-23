@@ -2,6 +2,8 @@
 
 # S-Ai
 
+
+<img alt="Capsule Banner" src="assets/S-Ai.png" title="Banner" />
 **A fast, multi-model AI chatbot with a Next.js frontend and FastAPI backend.**
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-safwat--ai--duckdns.org-black?style=for-the-badge&logo=vercel)](https://safwat-ai.duckdns.org/)

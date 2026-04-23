@@ -130,7 +130,7 @@ async def asterisk(request : ChatRequest):
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 
-@app.post("/Asterisk-thinking")
+@app.post("/Asterisk-Thinking")
 async def asterisk_thinking(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)

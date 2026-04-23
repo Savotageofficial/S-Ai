@@ -104,7 +104,7 @@ async def sai_call(request : ChatRequest):
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         stream = await client.chat.completions.create(
-            model="qwen/qwen3-next-80b-a3b-instruct:free",
+            model="z-ai/glm-4.5-air:free",
             messages=[
                 {"role": "system",
                  "content": "You are Safwat-Ai , your core model is qwen3 but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},

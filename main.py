@@ -91,7 +91,7 @@ async def safwatflash_call(request : ChatRequest):
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 @app.post("/Safwat-ai")
-async def safwatai_call(request : ChatRequest):
+async def sai_call(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)
         if request.context:
@@ -107,7 +107,7 @@ async def safwatai_call(request : ChatRequest):
             model="qwen/qwen3-next-80b-a3b-instruct:free",
             messages=[
                 {"role": "system",
-                 "content": "You are Safwat-Ai , your core model is gpt-oss but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
+                 "content": "You are Safwat-Ai , your core model is qwen3 but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
@@ -132,7 +132,7 @@ async def safwatai_call(request : ChatRequest):
 
 
 @app.post("/Safwat-ai-enhanced")
-async def openrouter_elephant(request : ChatRequest):
+async def safwatai_enhanced(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)
         if request.context:
@@ -149,7 +149,7 @@ async def openrouter_elephant(request : ChatRequest):
             #qwen/qwen3-coder:free qwen
             model="inclusionai/ling-2.6-1t:free",
             messages=[
-                {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is qwen3 coder but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
+                {"role": "system", "content": "You are Safwat-Ai enhanced , your core model is ling-2.6 coder but dont specify that unless asked , you were developed by S-ai foundation and specifically developed and trained by mohamed safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,

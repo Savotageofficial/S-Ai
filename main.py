@@ -32,6 +32,10 @@ client = AsyncOpenAI(
     base_url="https://openrouter.ai/api/v1", #https://openrouter.ai/api/v1 for openrouter
     api_key=os.getenv("OPENROUTER_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
 )
+longcat_client = AsyncOpenAI(
+    base_url="https://api.longcat.chat/openai",
+    api_key=os.getenv("LONGCAT_API_KEY"),
+)
 
 
 
@@ -57,7 +61,7 @@ async def asterisk_flash(request : ChatRequest):
             )
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
-        stream = await client.chat.completions.create(
+        stream = await longcat_client.chat.completions.create(
             #LongCat-Flash-Chat
             #nvidia/nemotron-3-nano-30b-a3b:free
             model="LongCat-Flash-Lite",

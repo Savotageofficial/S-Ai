@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 client = AsyncOpenAI(
-    base_url="https://api.longcat.chat/openai", #https://openrouter.ai/api/v1 for openrouter
+    base_url="https://openrouter.ai/api/v1", #https://openrouter.ai/api/v1 for openrouter
     api_key=os.getenv("OPENROUTER_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
 )
 

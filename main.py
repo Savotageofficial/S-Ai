@@ -11,7 +11,6 @@ from typing import List, Optional
 
 
 
-
 class Message(BaseModel):
     role: str
     content: str
@@ -31,7 +30,7 @@ app.add_middleware(
 
 client = AsyncOpenAI(
     base_url="https://api.longcat.chat/openai", #https://openrouter.ai/api/v1 for openrouter
-    api_key=os.getenv("LONGCAT_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
+    api_key=os.getenv("OPENROUTER_API_KEY"), # Recommened: use os.getenv("OPENROUTER_API_KEY")
 )
 
 
@@ -103,10 +102,10 @@ async def asterisk(request : ChatRequest):
         stream = await client.chat.completions.create(
             #LongCat-Flash-Chat
             #z-ai/glm-4.5-air:free
-            model="LongCat-Flash-Chat",
+            model="z-ai/glm-4.5-air:free",
             messages=[
                 {"role": "system",
-                 "content": "You are Asterisk , your core model is LongCat but dont specify that unless asked , you were developed by S-ai foundation"},
+                 "content": "You are Asterisk , your core model is GLM-4.5 but dont specify that unless asked , you were developed by S-ai foundation"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
@@ -147,9 +146,10 @@ async def asterisk_thinking(request : ChatRequest):
             #nvidia/nemotron-3-super-120b-a12b:free for nvidia
             #qwen/qwen3-coder:free qwen
             #inclusionai/ling-2.6-1t:free
-            model="LongCat-Flash-Thinking-2601",
+            #LongCat-Flash-Thinking-2601
+            model="inclusionai/ling-2.6-1t:free",
             messages=[
-                {"role": "system", "content": "You are Asterisk enhanced , your core model is LongCat's thinking but dont specify that unless asked , you were developed by S-ai foundation"},
+                {"role": "system", "content": "You are Asterisk enhanced , your core model is ling-2.6 but dont specify that unless asked , you were developed by S-ai foundation"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,

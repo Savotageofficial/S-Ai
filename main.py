@@ -67,7 +67,7 @@ async def asterisk_flash(request : ChatRequest):
             model="LongCat-Flash-Lite",
             messages=[
                 {"role": "system",
-                 "content": "You are Asterisk Flash , your core model is LongCat's Lite but dont specify that unless asked , you were developed by S-ai foundation"},
+                 "content": "You are Asterisk Flash , your core model is LongCat's Lite but dont specify that unless asked , you were developed by Mohamed Safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
@@ -109,7 +109,7 @@ async def asterisk(request : ChatRequest):
             model="z-ai/glm-4.5-air:free",
             messages=[
                 {"role": "system",
-                 "content": "You are Asterisk , your core model is GLM-4.5 but dont specify that unless asked , you were developed by S-ai foundation"},
+                 "content": "You are Asterisk , your core model is GLM-4.5 but dont specify that unless asked , you were developed by Mohamed Safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
@@ -153,7 +153,7 @@ async def asterisk_thinking(request : ChatRequest):
             #LongCat-Flash-Thinking-2601
             model="inclusionai/ling-2.6-1t:free",
             messages=[
-                {"role": "system", "content": "You are Asterisk enhanced , your core model is ling-2.6 but dont specify that unless asked , you were developed by S-ai foundation"},
+                {"role": "system", "content": "You are Asterisk enhanced , your core model is ling-2.6 but dont specify that unless asked , you were developed by Mohamed Safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,

@@ -570,13 +570,13 @@ export default function Home() {
           <header className="chat-header">
             <div className="chat-header-left">
               <Image
-                src="/logo.png"
-                alt="S-AI Logo"
+                src="/astrict_dark.jpeg"
+                alt="Asterisk"
                 width={36}
                 height={36}
                 className="chat-logo-small"
               />
-              <span className="chat-header-title">S-AI</span>
+              <span className="chat-header-title">Asterisk</span>
             </div>
             <button
               className="new-chat-btn"

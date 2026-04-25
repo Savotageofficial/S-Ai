@@ -38,7 +38,10 @@ longcat_client = AsyncOpenAI(
 )
 
 
-
+HF_client = AsyncOpenAI(
+    base_url="https://router.huggingface.co/v1",
+    api_key=os.environ["HF_API_KEY"],
+)
 
 @app.get("/")
 async def root():
@@ -103,13 +106,13 @@ async def asterisk(request : ChatRequest):
             )
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
-        stream = await client.chat.completions.create(
+        stream = await HF_client.chat.completions.create(
             #LongCat-Flash-Chat
             #z-ai/glm-4.5-air:free
-            model="z-ai/glm-4.5-air:free",
+            model="moonshotai/Kimi-K2.6:novita",
             messages=[
                 {"role": "system",
-                 "content": "You are Asterisk , your core model is GLM-4.5 but dont specify that unless asked , you were developed by Mohamed Safwat"},
+                 "content": "You are Asterisk , your core model is Kimi-K2.6 but dont specify that unless asked , you were developed by Mohamed Safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,

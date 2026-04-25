@@ -570,7 +570,7 @@ export default function Home() {
           <header className="chat-header">
             <div className="chat-header-left">
               <Image
-                src="/astrict_dark.jpeg"
+                src="/astrict_dark.png"
                 alt="Asterisk"
                 width={36}
                 height={36}
@@ -598,7 +598,7 @@ export default function Home() {
               >
                 {msg.role === "ai" && (
                   <Image
-                    src="/astrict_dark.jpeg"
+                    src="/astrict_dark.png"
                     alt="Astrict"
                     width={32}
                     height={32}
@@ -651,7 +651,7 @@ export default function Home() {
       <div className="welcome-screen">
         <div className="logo-container">
           <Image
-            src="/astrict_dark.jpeg"
+            src="/astrict_dark.png"
             alt="Astrict Logo"
             width={80}
             height={80}

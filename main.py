@@ -67,7 +67,7 @@ async def asterisk_flash(request : ChatRequest):
             model="LongCat-Flash-Lite",
             messages=[
                 {"role": "system",
-                 "content": "You are Asterisk Flash , your core model is LongCat's Lite but dont specify that unless asked , you were developed by Mohamed Safwat"},
+                 "content": "You are Asterisk Flash , your core model is LongCat's Lite but dont specify that unless asked , and dont mention meituan unless specifically asked , you were developed by Mohamed Safwat"},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,

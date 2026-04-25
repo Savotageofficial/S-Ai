@@ -119,9 +119,11 @@ async def asterisk(request : ChatRequest):
         )
 
         async for chunk in stream:
-            if chunk.choices[0].delta.content:
-                yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
-
+            if not chunk.choices:
+                continue
+            delta = chunk.choices[0].delta
+            if delta and delta.content:
+                yield f"data: {json.dumps({'content': delta.content})}\n\n"
 
 
 

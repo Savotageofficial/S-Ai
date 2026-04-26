@@ -40,7 +40,7 @@ longcat_client = AsyncOpenAI(
 
 HF_client = AsyncOpenAI(
     base_url="https://router.huggingface.co/v1",
-    api_key=os.getenv("HF_API_KEY"),
+    api_key=os.environ["HF_API_KEY"],
 )
 
 @app.get("/")

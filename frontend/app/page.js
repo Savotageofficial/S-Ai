@@ -369,8 +369,10 @@ export default function Home() {
 
       setInputValue("");
       const currentPdfFileName = pdfFileName; // Capture before clearing
+      const currentPdfContext = pdfContext; // Capture PDF context
+
+      // Only clear filename from UI, keep context in history
       setPdfFileName("");
-      setPdfContext("");
       if (fileInputRef.current) fileInputRef.current.value = "";
       setIsInChat(true);
 
@@ -399,7 +401,7 @@ export default function Home() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: conversationHistoryRef.current,
-            context: pdfContext || "",
+            context: currentPdfContext || "",
           }),
           signal: abortControllerRef.current.signal,
         });

@@ -317,7 +317,7 @@ async def Qwen(request : ChatRequest):
 
         # Use regular 'for' since it's a sync generator
         for chunk in stream:
-            content = chunk.choices[0].delta.content
+            content = chunk.message.content
             if content:
                 yield f"data: {json.dumps({'content': content})}\n\n"
 

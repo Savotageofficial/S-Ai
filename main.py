@@ -234,8 +234,6 @@ async def Kimi(request : ChatRequest):
         )
 
         async for chunk in stream:
-            if not getattr(chunk, "choices", None):
-                continue
             if chunk.choices[0].delta.content:
                 yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
 

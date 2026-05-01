@@ -238,3 +238,46 @@ async def Kimi(request : ChatRequest):
                 yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")
+
+
+@app.post("/Qwen3-Next")
+async def Qwen(request : ChatRequest):
+    async def generate_response():
+        processed_messages = list(request.messages)
+        if request.context:
+            last = processed_messages[-1]
+            augmented_content = (
+                f"Use the following document as context to answer the user's question.\n"
+                f"--- DOCUMENT ---\n{request.context}\n--- END DOCUMENT ---\n\n"
+                f"User: {last.content}"
+            )
+            processed_messages[-1] = Message(role=last.role, content=augmented_content)
+
+        stream = await client.chat.completions.create(
+            #LongCat-Flash-Chat
+            #z-ai/glm-4.5-air:free
+            model="qwen/qwen3-next-80b-a3b-instruct:free",
+            messages=[
+                {"role": "system",
+                 "content": system_prompt("Qwen3-Next")},
+                *[{"role": m.role, "content": m.content} for m in processed_messages]
+            ],
+            stream=True,
+        )
+
+        async for chunk in stream:
+            if chunk.choices[0].delta.content:
+                yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
+
+
+
+
+
+    def modeldownresponse():
+        message = "sorry, this model is disabled for server problems"
+
+        # Word by word
+        for word in message.split():
+            yield f"data: {json.dumps({'content': word + ' '})}\n\n"
+
+    return StreamingResponse(generate_response(), media_type="text/event-stream")

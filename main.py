@@ -227,6 +227,9 @@ async def Kimi(request : ChatRequest):
                 {"role": "system", "content": system_prompt("kimi-k2-instruct")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
+            temperature=0.6,
+            top_p=0.9,
+            max_tokens=4096,
             stream=True,
         )
 

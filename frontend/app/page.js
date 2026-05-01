@@ -100,8 +100,7 @@ const MODELS = [
   { id: "LongCat-Flash-Lite", label: "LongCat Flash Lite" },
   { id: "Ling-2.6", label: "Ling 2.6" },
   { id: "DeepSeek-V4-Pro" , label: "DeepSeek V4 Pro"},
-  { id: "Kimi-K2.5" , label: "Kimi K2.5"},
-  { id: "Qwen3-Next" , label: "Qwen3-Next"}
+  { id: "Qwen3-Coder" , label: "Qwen3-Coder"}
 ];
 
 function renderChatInput({

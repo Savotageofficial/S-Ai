@@ -222,7 +222,7 @@ async def Kimi(request : ChatRequest):
             #qwen/qwen3-coder:free qwen
             #inclusionai/ling-2.6-1t:free
             #LongCat-Flash-Thinking-2601
-            model="kimi-k2-instruct",
+            model="moonshotai/kimi-k2-instruct",
             messages=[
                 {"role": "system", "content": system_prompt("kimi-k2-instruct")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]

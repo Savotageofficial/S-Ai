@@ -96,9 +96,10 @@ const QUICK_ACTIONS = [
    returning JSX, NOT a component — avoids remount)
    ============================================= */
 const MODELS = [
-  { id: "Asterisk", label: "Asterisk" },
-  { id: "Asterisk-flash", label: "Asterisk flash" },
-  { id: "Asterisk-Thinking", label: "Asterisk Thinking" },
+  { id: "GLM-4.5-air", label: "GLM 4.5 air" },
+  { id: "LongCat-Flash-Lite", label: "LongCat Flash Lite" },
+  { id: "Ling-2.6", label: "Ling 2.6" },
+  { id: "DeepSeek-V4-Pro" , label: "DeepSeek V4 Pro"}
 ];
 
 function renderChatInput({
@@ -291,7 +292,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isInChat, setIsInChat] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("Asterisk");
+  const [selectedModel, setSelectedModel] = useState("Ling-2.6");
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [pdfContext, setPdfContext] = useState("");
   const [pdfFileName, setPdfFileName] = useState("");

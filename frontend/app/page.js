@@ -99,7 +99,6 @@ const MODELS = [
   { id: "GLM-4.5-air", label: "GLM 4.5 air" },
   { id: "LongCat-Flash-Lite", label: "LongCat Flash Lite" },
   { id: "Ling-2.6", label: "Ling 2.6" },
-  { id: "DeepSeek-V4-Pro" , label: "DeepSeek V4 Pro"},
   { id: "Qwen3-Coder" , label: "Qwen3-Coder"}
 ];
 

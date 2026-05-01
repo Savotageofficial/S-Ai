@@ -283,10 +283,14 @@ async def Kimi_K2_Instruct(request: ChatRequest):
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
-@app.post("/Qwen3-Next")
+@app.post("/Qwen3-Coder")
 async def Qwen(request : ChatRequest):
+    if not request.messages:
+        return {"error": "No messages provided"}
+
     async def generate_response():
         processed_messages = list(request.messages)
+
         if request.context:
             last = processed_messages[-1]
             augmented_content = (
@@ -296,31 +300,27 @@ async def Qwen(request : ChatRequest):
             )
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
-        stream = await client.chat.completions.create(
-            #LongCat-Flash-Chat
-            #z-ai/glm-4.5-air:free
-            model="qwen/qwen3-next-80b-a3b-instruct:free",
-            messages=[
-                {"role": "system",
-                 "content": system_prompt("Qwen3-Next")},
-                *[{"role": m.role, "content": m.content} for m in processed_messages]
-            ],
-            stream=True,
-        )
+        # Run the sync generator in a thread pool to avoid blocking
+        loop = asyncio.get_event_loop()
 
-        async for chunk in stream:
-            if chunk.choices[0].delta.content:
-                yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
+        def get_stream():
+            return chat(
+                model='qwen3-coder:480b-cloud',
+                messages=[
+                    {'role': 'system', 'content': system_prompt("qwen3-coder")},
+                    *[{"role": m.role, "content": m.content} for m in processed_messages]
+                ],
+                stream=True,
+            )
 
+        stream = await loop.run_in_executor(None, get_stream)
 
+        # Use regular 'for' since it's a sync generator
+        for chunk in stream:
+            content = chunk.choices[0].delta.content
+            if content:
+                yield f"data: {json.dumps({'content': content})}\n\n"
 
-
-
-    def modeldownresponse():
-        message = "sorry, this model is disabled for server problems"
-
-        # Word by word
-        for word in message.split():
-            yield f"data: {json.dumps({'content': word + ' '})}\n\n"
+        yield "data: [DONE]\n\n"
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")

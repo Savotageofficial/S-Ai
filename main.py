@@ -204,7 +204,7 @@ async def DeepSeek(request : ChatRequest):
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
-@app.post("/Kimi-K2-Instruct")
+@app.post("/unavailable/Kimi-K2-Instruct")
 async def Kimi(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)
@@ -239,6 +239,48 @@ async def Kimi(request : ChatRequest):
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
+
+@app.post("/Kimi-K2-Instruct")
+async def Kimi_K2_Instruct(request: ChatRequest):
+    # Safety Check: Ensure there are messages to process
+    if not request.messages:
+        return {"error": "No messages provided"}
+
+    async def generate_response():
+        processed_messages = list(request.messages)
+
+        # Inject context if available
+        if request.context:
+            last = processed_messages[-1]
+            # It's generally better to add context as a system message rather than modifying user input
+            # But if sticking to your logic:
+            augmented_content = (
+                f"Use the following document as context to answer the user's question.\n"
+                f"--- DOCUMENT ---\n{request.context}\n--- END DOCUMENT ---\n\n"
+                f"User: {last.content}"
+            )
+            processed_messages[-1] = Message(role=last.role, content=augmented_content)
+
+        # Ensure you have imported or defined the 'chat' function correctly
+        stream = await chat(
+            model='kimi-k2.6:cloud',
+            messages=[
+                {'role': 'system', 'content': system_prompt("kimi-k2.6")},
+                *[{"role": m.role, "content": m.content} for m in processed_messages]
+            ],
+            stream=True,
+        )
+
+        async for chunk in stream:
+            # Validate chunk structure exists to avoid AttributeError
+            content = chunk.choices[0].delta.content
+            if content:
+                yield f"data: {json.dumps({'content': content})}\n\n"
+
+        # Send end event (optional but good practice for SSE)
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 @app.post("/Qwen3-Next")
 async def Qwen(request : ChatRequest):

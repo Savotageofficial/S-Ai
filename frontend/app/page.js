@@ -99,7 +99,8 @@ const MODELS = [
   { id: "GLM-4.5-air", label: "GLM 4.5 air" },
   { id: "LongCat-Flash-Lite", label: "LongCat Flash Lite" },
   { id: "Ling-2.6", label: "Ling 2.6" },
-  { id: "DeepSeek-V4-Pro" , label: "DeepSeek V4 Pro"}
+  { id: "DeepSeek-V4-Pro" , label: "DeepSeek V4 Pro"},
+  { id: "Kimi-K2-Instruct" , label: "Kimi K2 Instruct"}
 ];
 
 function renderChatInput({

@@ -203,3 +203,37 @@ async def DeepSeek(request : ChatRequest):
                 yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
 
     return StreamingResponse(generate_response(), media_type="text/event-stream")
+
+@app.post("/Kimi-K2-Instruct")
+async def Kimi(request : ChatRequest):
+    async def generate_response():
+        processed_messages = list(request.messages)
+        if request.context:
+            last = processed_messages[-1]
+            augmented_content = (
+                f"Use the following document as context to answer the user's question.\n"
+                f"--- DOCUMENT ---\n{request.context}\n--- END DOCUMENT ---\n\n"
+                f"User: {last.content}"
+            )
+            processed_messages[-1] = Message(role=last.role, content=augmented_content)
+
+        stream = await nvidia_client.chat.completions.create(
+            #nvidia/nemotron-3-super-120b-a12b:free for nvidia
+            #qwen/qwen3-coder:free qwen
+            #inclusionai/ling-2.6-1t:free
+            #LongCat-Flash-Thinking-2601
+            model="kimi-k2-instruct",
+            messages=[
+                {"role": "system", "content": system_prompt("kimi-k2-instruct")},
+                *[{"role": m.role, "content": m.content} for m in processed_messages]
+            ],
+            stream=True,
+        )
+
+        async for chunk in stream:
+            if not getattr(chunk, "choices", None):
+                continue
+            if chunk.choices[0].delta.content:
+                yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
+
+    return StreamingResponse(generate_response(), media_type="text/event-stream")

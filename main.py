@@ -241,7 +241,7 @@ async def Kimi(request : ChatRequest):
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 
-@app.post("/Kimi-K2-Instruct")
+@app.post("/Kimi-K2.5")
 async def Kimi_K2_Instruct(request: ChatRequest):
     if not request.messages:
         return {"error": "No messages provided"}
@@ -263,7 +263,7 @@ async def Kimi_K2_Instruct(request: ChatRequest):
 
         def get_stream():
             return chat(
-                model='kimi-k2.6:cloud',
+                model='kimi-k2.5:cloud',
                 messages=[
                     {'role': 'system', 'content': system_prompt("kimi-k2.6")},
                     *[{"role": m.role, "content": m.content} for m in processed_messages]

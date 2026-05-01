@@ -262,7 +262,7 @@ async def Kimi_K2_Instruct(request: ChatRequest):
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
         # Ensure you have imported or defined the 'chat' function correctly
-        stream = await chat(
+        stream = chat(
             model='kimi-k2.6:cloud',
             messages=[
                 {'role': 'system', 'content': system_prompt("kimi-k2.6")},

@@ -41,8 +41,8 @@ nvidia_client = AsyncOpenAI(
     api_key=os.getenv("NVIDIA_API_KEY"),
 )
 
-
-
+def system_prompt(model):
+    return f"You are hosted and served by Asterisk , your core model is {model}, your hosting platform aka Asterisk was developed by Mohamed Safwat"
 
 @app.get("/")
 async def root():
@@ -71,7 +71,7 @@ async def asterisk_flash(request : ChatRequest):
             model="LongCat-Flash-Lite",
             messages=[
                 {"role": "system",
-                 "content": "You are Asterisk Flash , your core model is LongCat's Lite but dont specify that unless asked , and dont mention meituan unless specifically asked , you were developed by Mohamed Safwat"},
+                 "content": system_prompt("LongCat-Flash-Lite")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
@@ -113,7 +113,7 @@ async def asterisk(request : ChatRequest):
             model="z-ai/glm-4.5-air:free",
             messages=[
                 {"role": "system",
-                 "content": "You are Asterisk , your core model is GLM-4.5 but dont specify that unless asked , you were developed by Mohamed Safwat"},
+                 "content": system_prompt("GLM-4.5-air")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
@@ -157,7 +157,7 @@ async def asterisk_thinking(request : ChatRequest):
             #LongCat-Flash-Thinking-2601
             model="inclusionai/ling-2.6-1t:free",
             messages=[
-                {"role": "system", "content": "You are Asterisk enhanced , your core model is ling-2.6 but dont specify that unless asked , you were developed by Mohamed Safwat"},
+                {"role": "system", "content": system_prompt("Ling-2.6-1t")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,
@@ -190,7 +190,7 @@ async def DeepSeek(request : ChatRequest):
             #LongCat-Flash-Thinking-2601
             model="deepseek-ai/deepseek-v4-pro",
             messages=[
-                {"role": "system", "content": "You are Asterisk enhanced , your core model is ling-2.6 but dont specify that unless asked , you were developed by Mohamed Safwat"},
+                {"role": "system", "content": system_prompt("DeepSeek-V4-Pro")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
             ],
             stream=True,

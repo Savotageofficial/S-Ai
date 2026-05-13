@@ -292,7 +292,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isInChat, setIsInChat] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("Ling-2.6");
+  const [selectedModel, setSelectedModel] = useState("Ring-2.6");
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [pdfContext, setPdfContext] = useState("");
   const [pdfFileName, setPdfFileName] = useState("");

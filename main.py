@@ -138,7 +138,7 @@ async def asterisk(request : ChatRequest):
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 
-@app.post("/Ling-2.6")
+@app.post("/Ring-2.6")
 async def asterisk_thinking(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)
@@ -156,7 +156,7 @@ async def asterisk_thinking(request : ChatRequest):
             #qwen/qwen3-coder:free qwen
             #inclusionai/ling-2.6-1t:free
             #LongCat-Flash-Thinking-2601
-            model="inclusionai/ling-2.6-1t:free",
+            model="inclusionai/ring-2.6-1t:free",
             messages=[
                 {"role": "system", "content": system_prompt("Ling-2.6-1t")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]

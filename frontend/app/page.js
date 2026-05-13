@@ -98,7 +98,7 @@ const QUICK_ACTIONS = [
 const MODELS = [
   { id: "GLM-4.5-air", label: "GLM 4.5 air" },
   { id: "LongCat-Flash-Lite", label: "LongCat Flash Lite" },
-  { id: "Ling-2.6", label: "Ling 2.6" },
+  { id: "Ring-2.6", label: "Ring 2.6" },
   { id: "Qwen3-Coder" , label: "Qwen3-Coder"}
 ];
 

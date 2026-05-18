@@ -1,12 +1,12 @@
 <div align="center">
 
-# S-Ai
+# Asterisk
 
 
-<img alt="S-Ai Banner" src="S-AI.png" title="Banner" />
+<img alt="Asterisk Banner" src="Asterisk.png" title="Banner" />
 **A fast, multi-model AI chatbot with a Next.js frontend and FastAPI backend.**
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-safwat--ai--duckdns.org-black?style=for-the-badge&logo=vercel)](https://safwat-ai.duckdns.org/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-astriks.duckdns.org-black?style=for-the-badge&logo=vercel)](https://astriks.duckdns.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-Frontend-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -18,7 +18,7 @@
 
 ## Overview
 
-S-Ai is a lightweight, streaming AI chatbot that lets users interact with multiple AI models through a clean, unified interface. The backend is built with FastAPI and supports real-time token streaming via Server-Sent Events (SSE). The frontend is deployed on Vercel and communicates with the backend seamlessly.
+Asterisk is a lightweight, streaming AI chatbot that lets users interact with multiple AI models through a clean, unified interface. The backend is built with FastAPI and supports real-time token streaming via Server-Sent Events (SSE). The frontend is deployed on Vercel and communicates with the backend seamlessly.
 
 ---
 
@@ -47,7 +47,7 @@ S-Ai is a lightweight, streaming AI chatbot that lets users interact with multip
 ## Project Structure
 
 ```
-S-Ai/
+Asterisk/
 ├── frontend/          # Next.js frontend application
 ├── main.py            # FastAPI backend — all model endpoints
 ├── requirements.txt   # Python dependencies
@@ -72,8 +72,8 @@ S-Ai/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Savotageofficial/S-Ai.git
-   cd S-Ai
+   git clone https://github.com/Savotageofficial/Asterisk.git
+   cd Asterisk
    ```
 
 2. **Install Python dependencies**
@@ -114,31 +114,6 @@ S-Ai/
 
 ---
 
-## API Endpoints
-
-| Endpoint | Method | Description |
-|---|---|---|
-| `GET /` | GET | Health check |
-| `GET /Safwat-ai` | GET | Local Ollama model (Safwat-ai) |
-| `GET /Safwat-ai-flash` | GET | Local Ollama model (Safwat-ai-flash) |
-| `GET /Safwat-ai-enhanced` | GET | Cloud model via OpenRouter |
-
-All chat endpoints accept a `message` query parameter and return a streaming SSE response.
-
-**Example request:**
-```
-GET /Safwat-ai-enhanced?message=Hello, how are you?
-```
-
-**Example SSE response:**
-```
-data: {"content": "Hello"}
-data: {"content": "! I'm"}
-data: {"content": " doing great."}
-```
-
----
-
 ## Deployment
 
 ### Backend
@@ -147,7 +122,7 @@ Deploy to any server that supports Python. Recommended options: **Railway**, **R
 ### Frontend
 The frontend is deployed on **Vercel**. Connect your GitHub repo to Vercel and it will auto-deploy on every push to `master`.
 
-Live at: [s-ai-sage.vercel.app](https://s-ai-sage.vercel.app)
+Live at: [astriks.duckdns.org](https://astriks.duckdns.org)
 
 ---
 

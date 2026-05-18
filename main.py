@@ -171,7 +171,7 @@ async def asterisk_thinking(request : ChatRequest):
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 
-@app.post("/DeepSeek-V4-Pro")
+@app.post("/DeepSeek-V4-Flash")
 async def DeepSeek(request : ChatRequest):
     async def generate_response():
         processed_messages = list(request.messages)
@@ -184,12 +184,12 @@ async def DeepSeek(request : ChatRequest):
             )
             processed_messages[-1] = Message(role=last.role, content=augmented_content)
 
-        stream = await nvidia_client.chat.completions.create(
+        stream = await client.chat.completions.create(
             #nvidia/nemotron-3-super-120b-a12b:free for nvidia
             #qwen/qwen3-coder:free qwen
             #inclusionai/ling-2.6-1t:free
             #LongCat-Flash-Thinking-2601
-            model="deepseek-ai/deepseek-v4-pro",
+            model="deepseek/deepseek-v4-flash:free",
             messages=[
                 {"role": "system", "content": system_prompt("DeepSeek-V4-Pro")},
                 *[{"role": m.role, "content": m.content} for m in processed_messages]
@@ -198,8 +198,6 @@ async def DeepSeek(request : ChatRequest):
         )
 
         async for chunk in stream:
-            if not getattr(chunk, "choices", None):
-                continue
             if chunk.choices[0].delta.content:
                 yield f"data: {json.dumps({'content': chunk.choices[0].delta.content})}\n\n"
 

@@ -98,7 +98,7 @@ const QUICK_ACTIONS = [
 const MODELS = [
   { id: "GLM-4.5-air", label: "GLM 4.5 air" },
   { id: "LongCat-Flash-Lite", label: "LongCat Flash Lite" },
-  { id: "Ring-2.6", label: "Ring 2.6" },
+  { id: "DeepSeek-V4-Flash", label: "DeepSeek V4 Flash" },
   { id: "Qwen3-Coder" , label: "Qwen3-Coder"}
 ];
 
@@ -292,7 +292,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isInChat, setIsInChat] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("Ring-2.6");
+  const [selectedModel, setSelectedModel] = useState("DeepSeek-V4-Flash");
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [pdfContext, setPdfContext] = useState("");
   const [pdfFileName, setPdfFileName] = useState("");
